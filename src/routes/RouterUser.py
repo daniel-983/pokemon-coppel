@@ -27,10 +27,10 @@ def register():
 def login():
     try:
         user_data = request.get_json()
-        if 'username' in user_data and 'password' in user_data:
+        if 'email' in user_data and 'password' in user_data:
             return UserController.login(user_data)
         else:
-            return Response(json.dumps({'message': 'Missing username or password'}), mimetype='application/json'), 400
+            return Response(json.dumps({'message': 'Missing email or password'}), mimetype='application/json'), 400
     except ValueError as e:
         return Response(json.dumps({"message": "Incorrect data."}), status=400, mimetype='application/json')
     except KeyError as e:

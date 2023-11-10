@@ -2,7 +2,7 @@ from flask                 import jsonify, Response
 from src.config.connection import userCollection
 # from src.config.utilities import WriteLog as log
 # from src.config.utilities import encrypt_password, validate_password
-from src.models.ModelUser  import UserModel, UserRepository
+from src.models.ModelUser  import UserModel, UserRepository, UserCreationException
 from flask_jwt_extended    import create_access_token
 from werkzeug.security     import generate_password_hash, check_password_hash
 import json
@@ -19,41 +19,52 @@ class UserController:
         try:
             new_user = UserModel(**user_data)
             prev_user = cls.user_repo.get_user_by_email(new_user.email)
-            print(prev_user)
             if prev_user is None:
                 # new_user.password = encrypt_password(new_user.password, cls.ze_salt)
-                new_user.password = generate_password_hash(new_user.password)
-                return cls.user_repo.create_user(new_user)
-            elif prev_user[1] == 404:
-                return Response(json.dumps({'message': 'Connection Error'}), mimetype='application/json'), 502
+                hashed_password = generate_password_hash(new_user.password)
+                new_user.password = hashed_password
+                result = cls.user_repo.create_user(new_user)
+                resp = {
+                    'message': 'User created successfully',
+                    'user_id': result.inserted_id
+                }
+                return jsonify(resp), 201
             else:
-                return Response(json.dumps({'message': 'User already exists'}), mimetype='application/json'), 409
+                return jsonify({'message' : f"This email {new_user.email} was registered previously"}), 409
+        except UserCreationException as e:
+            return jsonify({'error' : str(e)}), 500
         except ValueError as e:
-            log.set_log().debug(e)
-            return Response(json.dumps({'message': 'Verify username and password'}), mimetype='application/json'), 400
+            return jsonify({'error' : 'Invalid data provided'}), 500
 
 
     @classmethod
     def login(cls, user_data):
-        # ~ handle_login()
-        # log.set_log().debug("========== Authenticate User Controller ==========")
-
-        unauth_user = UserModel(**user_data)
-        prev_user = cls.user_repo.get_user_by_username(unauth_user.username)
         try:
-            # hashed password is stored in the database
-            # compare proviced password after hashing it with the stored hash
-            # hashed_password = encrypt_password(unauth_user.password, ze_salt)
-            is_password_valid = validate_password(unauth_user.password, prev_user.password, cls.ze_salt)
-            if is_password_valid:
-                # Assuming the user has a unique identifier, like an 'id'
-                access_token = create_access_token(identity=str(user['id']))
-                return Response(json.dumps({'access_token': access_token}), mimetype='application/json', status=200)
+            unauth_user = UserModel(**user_data)
+            prev_user = cls.user_repo.get_user_by_email(unauth_user.email)
+
+            # Check if a user with the provided email exists
+            if prev_user:
+                # Use check_password_hash to compare the stored hash with the provided password
+                is_password_valid = check_password_hash(prev_user['password'], unauth_user.password)
+
+                # print(str(prev_user))
+
+                if is_password_valid:
+                    # Generate access token using the user's ID
+                    access_token = create_access_token(identity=str(prev_user['_id']))
+                    resp = {'access_token': access_token}
+                    return jsonify(resp), 200
+                else:
+                    raise InvalidCredentialsException()
             else:
-                # Handle invalid password
-                return Response(json.dumps({'message': 'Invalid username or password'}), mimetype='application/json', status=401)
+                return jsonify({'message':f"user *{unauth_user.email}* not found"}), 404
+
+        except InvalidCredentialsException as e:
+            return jsonify({'message':str(e)}), 401
+
         except Exception as e:
-            log.debug(e)
+            return jsonify({'message':'Login failed due to an unexpected error', 'error':str(e)}), 500
 
 
     @classmethod
@@ -81,3 +92,8 @@ class UserController:
         except Exception as e:
             # log.error(f"Error fetching user profile: {e}")
             return jsonify({"message": "Unable to fetch user profile"}), 500
+
+
+class InvalidCredentialsException(Exception):
+    def __init__(self, message="Invalid username or password", *args):
+        super().__init__(message, *args)

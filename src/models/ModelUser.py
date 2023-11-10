@@ -1,3 +1,4 @@
+from typing               import List, Optional, Dict
 from pydantic             import BaseModel
 from pymongo.collection   import Collection
 from pymongo              import errors
@@ -7,10 +8,9 @@ from flask                import Response
 import json
 
 class UserModel(BaseModel):
-    name     : str = ""
-    username : str
-    email    : str = ""
+    email    : str
     password : str
+    username : Optional[str] = None
 
 class UserRepository:
 
@@ -20,13 +20,11 @@ class UserRepository:
     def create_user(self, user: UserModel):
         try:
             user_data = user.dict()
-            self.collection.insert_one(user_data)
-            response = {'message': 'User created successfully'}
-            return json.dumps(response), 201
+            result = self.collection.insert_one(user_data)
+            return result
         except (errors.ConnectionFailure, errors.PyMongoError) as e:
-            # log.set_log().debug(e)
-            # Assuming a function to create a proper Flask Response object
-            return Response(json.dumps({'error': 'User creation unsuccessful'}), status=500, mimetype='application/json')
+            raise UserCreationException(f"Database error {e}")
+
 
     def update_user(self, user_id: str, user_data: dict):
         try:
@@ -71,13 +69,10 @@ class UserRepository:
             else:
                 return None
         except (errors.ConnectionFailure, errors.PyMongoError) as e:
-            # log.set_log().debug(e)
             return Response(json.dumps({"id": "EX-0033", "message": "Connection error usr"}), mimetype='application/json'), 404
         except TypeError as e:
-            # log.set_log().debug(e)
             return Response(json.dumps({"id": "EX-0034", "message": "Verify data usr"}), mimetype='application/json'), 404
         except Exception as e:
-            # log.set_log().debug(e)
             return Response(json.dumps({"id": "EX-0035", "message": "Verify data usr"}), mimetype='application/json'), 404
 
     def get_user_by_data(self, user: UserModel):
@@ -96,3 +91,8 @@ class UserRepository:
         except Exception as e:
             # log.set_log().debug(e)
             return Response(json.dumps({"id": "EX-0038", "message": "Verify data usr"}), mimetype='application/json'), 404
+
+class UserCreationException(Exception):
+    def __init__(self, message="User Creation unsuccessful"):
+        self.message = message
+        super().__init__(message, *args)
