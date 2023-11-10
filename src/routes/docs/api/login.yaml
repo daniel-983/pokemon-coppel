@@ -1,0 +1,23 @@
+tags:
+  - Users
+parameters:
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+responses:
+  '200':
+    description: User successfully logged in, JWT returned.
+  '400':
+    description: Missing username or password.
+  '401':
+    description: Invalid username or password.

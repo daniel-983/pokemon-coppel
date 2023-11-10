@@ -1,0 +1,32 @@
+tags:
+  - Users
+parameters:
+  - in: body
+    name: credentials
+    required: true
+    schema:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+responses:
+  '201':
+    description: Nuevo usuario registrado exitosamente
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Usuario registrado exitosamente
+  '409':
+    description: Usuario ya existe
+  '400':
+    description: Falta email o password

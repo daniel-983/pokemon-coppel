@@ -1,0 +1,37 @@
+tags:
+  - Users
+parameters:
+  - in: header
+    name: Authorization
+    required: true
+    type: string
+    description: JWT Authorization token prefixed with "Bearer ".
+responses:
+  '200':
+    description: Perfil de usuario obtenido exitosamente.
+    schema:
+      type: object
+      properties:
+        username:
+          type: string
+          example: johndoe
+        email:
+          type: string
+          example: johndoe@example.com
+        # Add additional user profile properties here as needed
+  '401':
+    description: Acceso no autorizado. Token inválido o expirado
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Acceso denegado. Se requiere token de autenticación válido.
+  '403':
+    description: Acceso prohibido. El token no tiene los permisos necesarios.
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Acceso denegado. No tienes permiso para acceder a este recurso.
