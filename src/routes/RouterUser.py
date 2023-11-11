@@ -7,6 +7,7 @@ import json
 
 users_bp = Blueprint('user', __name__)
 userController = UserController()
+pokemonController = PokemonController()
 
 @users_bp.route('/register', methods=['POST'])
 @csrf.exempt
@@ -48,15 +49,18 @@ def profile():
 
 
 @users_bp.route('/search', methods=['POST'])
+@csrf.exempt
 @jwt_required()
 @swag_from('docs\\api\\search.yaml')
 def search():
     pokemon_data = request.get_json()
+    pokemon_data['name'] = pokemon_data['pokemon_name']
     resp = pokemonController.search(pokemon_data)
     return resp
 
 
 @users_bp.route('/catch', methods=['POST'])
+@csrf.exempt
 @jwt_required()
 @swag_from('docs\\api\\catch.yaml')
 def catch():

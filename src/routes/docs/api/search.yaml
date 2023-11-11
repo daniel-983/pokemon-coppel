@@ -1,6 +1,10 @@
 tags:
   - Users
 parameters:
+  - in: header
+    name: Authorization
+    # required: true
+    type: string
   - in: body
     name: body
     required: true

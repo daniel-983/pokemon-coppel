@@ -18,16 +18,17 @@ class PokemonController:
 		self.pokemon_encounter_repository = PokemonRepository(pokemonCollection)
 		self.pokemon_service              = PokemonService(self.repository, self.redis_client)
 
-	def search(cls, pokemon_data):
+	def search(self, pokemon_data):
 		#  ~ handle_register()
 		# log.debug("========== Create User Controller ==========")
 		try:
-			pokemon      = UserModel(**pokemon_data)
-			prev_pokemon = self.repository.get_pokemon_by_name(pokemon.pokemon_name)
+			pokemon      = PokemonModel(**pokemon_data)
+			prev_pokemon = self.repository.get_pokemon_by_name(pokemon.name)
 
 			# self.pokemon_encounter_repository.seen()
 
 			if prev_pokemon:
+				prev_pokemon['_id'] = str(prev_pokemon['_id'])
 				return jsonify(prev_pokemon), 200
 			else :
 				fetched_pokemon = self.pokemon_service.get_or_fetch_pokemon(pokemon.name)
@@ -37,7 +38,7 @@ class PokemonController:
 		except PokemonInsertException as e:
 			return jsonify({'error' : str(e)}), 500
 		except ValueError as e:
-			return jsonify({'error' : 'Invalid data provided'}), 500
+			return jsonify({'error' : f"Invalid data provided {str(e)}"}), 500
 
 
 	def caught(cls, user_data):

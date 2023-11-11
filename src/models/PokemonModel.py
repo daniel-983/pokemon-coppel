@@ -5,8 +5,7 @@ from pymongo            import errors
 from bson               import ObjectId
 
 class PokemonModel(BaseModel):
-    id            : int
-    pokemon_name  : str
+    name          : str
     forms         : Optional[List] = None
     types         : Optional[List] = None
     sprites       : Optional[Dict] = None
