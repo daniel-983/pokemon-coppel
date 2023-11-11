@@ -27,7 +27,7 @@ class UserController:
                 result = self.repository.create_user(new_user)
                 resp = {
                     'message': 'User created successfully',
-                    'user_id': result.inserted_id
+                    'user_id': str(result.inserted_id)
                 }
                 return jsonify(resp), 201
             else:

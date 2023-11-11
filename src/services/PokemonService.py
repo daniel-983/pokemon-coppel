@@ -37,11 +37,11 @@ class PokemonService:
 
                 # Store in the repository
                 result = self.repository.insert_pokemon(pokemon_model)
-                pokemon_data['new_id'] = str(result.inserted_id)
+                pokemon_data['_id'] = str(result.inserted_id)
 
                 # pokemon_model = PokemonModel(**pokemon_data)
                 # self.redis_client.set(pokemon_name, pokemon_model.json(), ex=24 * 60 * 60)
-                print(f"Data for {pokemon_name} stored in Redis!")
+                print(f"Data for *{pokemon_name}* stored in Redis!")
                 return pokemon_data
 
         except Exception as e:

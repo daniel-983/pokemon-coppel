@@ -9,12 +9,14 @@ users_bp = Blueprint('user', __name__)
 userController = UserController()
 pokemonController = PokemonController()
 
+
 @users_bp.route('/register', methods=['POST'])
 @csrf.exempt
 @swag_from('docs\\api\\register.yaml')
 def register():
     try:
         user_data = request.get_json()
+        print(str(user_data))
         return userController.register(user_data)
     except ValueError as e:
         return Response(json.dumps({"message": "Incorrect data."}), status=400, mimetype='application/json')
@@ -22,6 +24,7 @@ def register():
         return Response(json.dumps({"message": "Incorrect data."}), status=400, mimetype='application/json')
     except Exception as e:
         return Response(json.dumps({"message": "Server error", "error" : e}), mimetype='application/json'), 500
+
 
 @users_bp.route('/login', methods=['POST'])
 @csrf.exempt
@@ -38,7 +41,7 @@ def login():
     except KeyError as e:
         return Response(json.dumps({"message": "Incorrect data."}), status=400, mimetype='application/json')
     except Exception as e:
-        return Response(json.dumps({"message": "Login failed"}), mimetype='application/json'), 500
+        return Response(json.dumps({"message": f"Login failed {e}"}), mimetype='application/json'), 500
 
 
 @users_bp.route('/profile', methods=['GET'])
@@ -65,6 +68,6 @@ def search():
 @swag_from('docs\\api\\catch.yaml')
 def catch():
     pokemon_data = request.get_json()
-    resp = userController.catch(pokemon_data)
+    resp = pokemonController.catch(pokemon_data)
     return resp
     
