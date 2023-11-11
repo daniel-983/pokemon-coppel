@@ -1,18 +1,19 @@
-from flask                 import jsonify, Response
-from src.config.connection import userCollection
-from src.models.UserModel  import UserModel, UserRepository, UserCreationException
-from flask_jwt_extended    import create_access_token, get_jwt_identity
-from werkzeug.security     import generate_password_hash, check_password_hash
-from bson                  import ObjectId
+from flask                            import jsonify, Response
+from src.config.connection            import userCollection, pokemonEncounterCollection
+from src.models.UserModel             import UserModel, UserRepository, UserCreationException
+from src.models.PokemonEncounterModel import PokemonEncounterRepository
+from flask_jwt_extended               import create_access_token, get_jwt_identity
+from werkzeug.security                import generate_password_hash, check_password_hash
+from bson                             import ObjectId
 import json
 import os
 
 class UserController:
     ze_salt   = os.getenv("SALT")
-    user_repo = UserRepository(userCollection)
 
     def __init__(self):
-        self.repository = UserRepository(userCollection)
+        self.repository                   = UserRepository(userCollection)
+        self.pokemon_encounter_repository = PokemonEncounterRepository(pokemonEncounterCollection)
 
     def register(self, user_data):
         #  ~ handle_register()
@@ -81,9 +82,11 @@ class UserController:
                 # Prepare the user profile information to be returned
                 # Exclude sensitive data like password hashes
                 user_profile = {
-                    "user_id"  : str(user['_id']),
-                    "username" : user['username'],
-                    "email"    : user['email'],
+                    "user_id"         : str(user['_id']),
+                    "username"        : user['username'],
+                    "email"           : user['email'],
+                    "seen_pokemon"    : self.pokemon_encounter_repository.get_seen(str(user['_id'])),
+                    "caught_pokemon"  : self.pokemon_encounter_repository.get_caught(str(user['_id'])),
                     # "pokemons": user.email,
                     # Add other fields that you want to return in the user profile
                 }
@@ -94,7 +97,7 @@ class UserController:
 
         except Exception as e:
             # log.error(f"Error fetching user profile: {e}")
-            return jsonify({"message": f"Unable to fetch user profile {str(e)}"}), 500
+            return jsonify({"message": f"Unable to fetch user profile. {str(e)}"}), 500
 
 
 class InvalidCredentialsException(Exception):

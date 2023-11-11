@@ -3,6 +3,7 @@ from src.config.connection            import pokemonCollection, pokemonEncounter
 from src.services.PokemonService      import PokemonService
 from src.models.PokemonModel          import PokemonModel, PokemonRepository, PokemonInsertException
 from src.models.PokemonEncounterModel import PokemonEncounterModel, PokemonEncounterRepository
+from flask_jwt_extended               import get_jwt_identity
 from flask                            import jsonify, Response
 from datetime                         import datetime
 import redis
@@ -33,7 +34,7 @@ class PokemonController:
 				prev_pokemon = fetched_pokemon
 			
 			encounter = {
-				'user_id' : 'how_do_i_get_it',
+				'user_id' : get_jwt_identity(),
 				'pokemon_id' : prev_pokemon['_id'],
 				'pokemon_name' : pokemon.name,
 				'encounter_date' : datetime.now(),
@@ -65,7 +66,7 @@ class PokemonController:
 				prev_pokemon = fetched_pokemon
 			
 			encounter = {
-				'user_id' : 'how_do_i_get_it',
+				'user_id' : get_jwt_identity(),
 				'pokemon_id' : prev_pokemon['_id'],
 				'pokemon_name' : pokemon.name,
 				'encounter_date' : datetime.now(),
@@ -81,6 +82,16 @@ class PokemonController:
 		except ValueError as e:
 			return jsonify({'error' : f"Invalid data provided {str(e)}"}), 500
 
-	def pokemon(self, pokemon_name):
-		pokemon_data = self.pokemon_service.get_pokemon_data(pokemon_name)
-		return pokemon_data
+	def by_id(self, pokemon_id):
+		user_id = get_jwt_identity()
+		pokemon_name = self.pokemon_encounter_repository.by_pokemon_id(user_id, pokemon_id)
+		if pokemon_name:
+			pokemon_data = self.repository.get_pokemon_by_name(pokemon_name)
+			#date seen
+			#date caught
+			return pokemon_data
+
+	def by_type(self, pokemon_type):
+		pokemons = self.repository.by_type(pokemon_id)
+		return pokemons
+

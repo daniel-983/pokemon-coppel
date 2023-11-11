@@ -47,8 +47,8 @@ template = {
 Swagger(app, template=template)
 
 from src.routes.RouterUser    import users_bp
-# from src.routes.RouterPokemon import pokemons_bp
+from src.routes.RouterPokemon import pokemons_bp
 
 app.register_blueprint(users_bp, url_prefix='/api')
-# app.register_blueprint(pokemons_bp, url_prefix='/api')
+app.register_blueprint(pokemons_bp, url_prefix='/api')
 

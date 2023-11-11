@@ -1,0 +1,14 @@
+tags:
+  - Pokemon
+parameters:
+  - in: query
+    name: type
+    # required: true
+    type: string
+responses:
+  '200':
+    description: Información de pokemon obtenida exitosamente
+  '401':
+    description: Acceso no autorizado. Token inválido o expirado
+  '403':
+    description: Acceso prohibido. El token no tiene los permisos necesarios.

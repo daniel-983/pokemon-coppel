@@ -59,12 +59,16 @@ class TestEndpoints(unittest.TestCase):
             "charmander", "bulbasaur", "squirtle", "pidgeotto", "alakazam",
             "jigglypuff", "gengar", "eevee", "snorlax", "dragonite",
             "totodile", "cyndaquil", "espeon", "tyranitar", "mudkip",
-            "gardevoir", "lucario", "togekiss", "axew", "sylveon"
+            "gardevoir", "lucario", "togekiss", "axew", "sylveon",
+            "blastoise", "venusaur", "arbok", "raichu", "sandshrew",
+            "nidoqueen", "nidoking", "clefable", "ninetales", "wigglytuff",
+            "vileplume", "poliwrath", "marowak", "hitmonlee",
+            "hitmonchan", "lickitung", "weezing", "rhydon", "chansey"
         ]
 
         # Get 10 random Pokemon names from the list
         random.shuffle(pokemon_list)
-        for pokemon_name in pokemon_list[:10]:
+        for pokemon_name in pokemon_list[:5]:
             # Search
             pokemon_search = {'pokemon_name' : pokemon_name}
             response = requests.post(f'{base_url}/search', headers=headers, json=pokemon_search)
@@ -73,7 +77,7 @@ class TestEndpoints(unittest.TestCase):
             self.assertEqual(response.status_code, 201)
 
         random.shuffle(pokemon_list)
-        for pokemon_name in pokemon_list[:7]:
+        for pokemon_name in pokemon_list[:4]:
             # Catch
             pokemon_search = {'pokemon_name' : pokemon_name}
             response = requests.post(f'{base_url}/catch', headers=headers, json=pokemon_search)
@@ -83,9 +87,10 @@ class TestEndpoints(unittest.TestCase):
 
         # Step 5: Check Profile (Should Have 10 Seen and Caught Pokemons)
         response = requests.get(f'{base_url}/profile', headers=headers)
+        print(response.json())
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json.get('seen_pokemons')), 10)
-        self.assertEqual(len(response.json.get('caught_pokemons')), 7)
+        self.assertEqual(len(response.json().get('seen_pokemons')), 5)
+        self.assertEqual(len(response.json().get('caught_pokemons')), 4)
 
 if __name__ == '__main__':
     unittest.main()

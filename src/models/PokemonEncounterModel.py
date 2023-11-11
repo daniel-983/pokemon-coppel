@@ -35,13 +35,33 @@ class PokemonEncounterRepository():
     def get_seen(self, user_id):
         try:
             seen_pokemons = self.collection.find({"user_id": user_id, "status" : "seen"})
-            return list(seen_pokemons)
+            print(('get_seen', user_id))
+            return self.serialize_pokemons(seen_pokemons)
         except (errors.ConnectionFailure, errors.PyMongoError) as e:
             return Response(json.dumps({"message": "Connection error"}), mimetype='application/json'), 404
 
-    def get_caught(self, name: str):
+    def get_caught(self, user_id):
         try:
             caught_pokemons = self.collection.find({"user_id": user_id, "status" : "caught"})
-            return list(seen_pokemons)
+            print(('get_caught', user_id))
+            return self.serialize_pokemons(caught_pokemons)
         except (errors.ConnectionFailure, errors.PyMongoError) as e:
             return Response(json.dumps({"message": "Connection error"}), mimetype='application/json'), 404
+
+    def by_pokemon_id(self, user_id, pokemon_id):
+        try:
+            encounter = self.collection.find_one({"user_id": user_id, "pokemon_id" : pokemon_id})
+            if encounter:
+                return encounter['pokemon_name']
+            else:
+                return None
+        except (errors.ConnectionFailure, errors.PyMongoError) as e:
+            return Response(json.dumps({"message": "Connection error"}), mimetype='application/json'), 404
+
+    def serialize_pokemons(self, pokemons):
+        # Convert each document's ObjectId to a string as 'encounter_id' and exclude '_id'
+        return [
+            {key: value for key, value in pokemon.items() if key != '_id'}
+            | {'encounter_id': str(pokemon['_id'])} 
+            for pokemon in pokemons if '_id' in pokemon
+        ]
