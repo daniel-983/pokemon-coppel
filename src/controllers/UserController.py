@@ -1,8 +1,6 @@
 from flask                 import jsonify, Response
 from src.config.connection import userCollection
-# from src.config.utilities import WriteLog as log
-# from src.config.utilities import encrypt_password, validate_password
-from src.models.ModelUser  import UserModel, UserRepository, UserCreationException
+from src.models.UserModel  import UserModel, UserRepository, UserCreationException
 from flask_jwt_extended    import create_access_token, get_jwt_identity
 from werkzeug.security     import generate_password_hash, check_password_hash
 from bson                  import ObjectId
@@ -13,18 +11,20 @@ class UserController:
     ze_salt   = os.getenv("SALT")
     user_repo = UserRepository(userCollection)
 
-    @classmethod
-    def register(cls, user_data):
+    def __init__(self):
+        self.repository = UserRepository(userCollection)
+
+    def register(self, user_data):
         #  ~ handle_register()
         # log.debug("========== Create User Controller ==========")
         try:
             new_user = UserModel(**user_data)
-            prev_user = cls.user_repo.get_user_by_email(new_user.email)
+            prev_user = self.repository.get_user_by_email(new_user.email)
             if prev_user is None:
                 # new_user.password = encrypt_password(new_user.password, cls.ze_salt)
                 hashed_password = generate_password_hash(new_user.password)
                 new_user.password = hashed_password
-                result = cls.user_repo.create_user(new_user)
+                result = self.repository.create_user(new_user)
                 resp = {
                     'message': 'User created successfully',
                     'user_id': result.inserted_id
@@ -38,11 +38,10 @@ class UserController:
             return jsonify({'error' : 'Invalid data provided'}), 500
 
 
-    @classmethod
-    def login(cls, user_data):
+    def login(self, user_data):
         try:
             unauth_user = UserModel(**user_data)
-            prev_user = cls.user_repo.get_user_by_email(unauth_user.email)
+            prev_user = self.repository.get_user_by_email(unauth_user.email)
 
             # Check if a user with the provided email exists
             if prev_user:
@@ -69,8 +68,7 @@ class UserController:
             return jsonify({'message':'Login failed due to an unexpected error', 'error':str(e)}), 500
 
 
-    @classmethod
-    def profile(cls):
+    def profile(self):
         # ~ handle_profile()
 
         user_id = get_jwt_identity()  # Retrieve the JWT identity, which should be the user's unique ID
@@ -78,7 +76,7 @@ class UserController:
         user_id = ObjectId(user_id)
         
         try:
-            user = cls.user_repo.get_user_by_id(user_id)
+            user = self.repository.get_user_by_id(user_id)
             if user:
                 # Prepare the user profile information to be returned
                 # Exclude sensitive data like password hashes

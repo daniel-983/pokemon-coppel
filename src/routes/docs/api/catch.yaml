@@ -1,5 +1,7 @@
 tags:
   - Users
+security:
+  - bearerAuth: []
 parameters:
   - in: body
     name: body
@@ -12,26 +14,8 @@ parameters:
         pokemon_name:
           type: string
 responses:
-  '200':
-    description: Pokemon
-    schema:
-      type: object
-      properties:
-        forms:
-          type: list
-          example: johndoe
-        types:
-          type: list
-          example: pokemon_types
-        sprites:
-          type: list
-          example: pokemon_sprites
-        abilities:
-          type: list
-          example: pokemon_abilities
-        game_versions:
-          type: list
-          example: game_appearances
+  '201':
+    description: Pokemon atrapado exitosamente!.
   '401':
     description: Acceso no autorizado. Token inválido o expirado
     schema:
@@ -48,3 +32,5 @@ responses:
         message:
           type: string
           example: Acceso denegado. No tienes permiso para acceder a este recurso.
+  '404': 
+    description : Pokemon no encontrado

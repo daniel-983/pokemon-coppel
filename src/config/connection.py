@@ -18,6 +18,6 @@ client = MongoClient(atlas_host, server_api=ServerApi('1'))
 pokedex = client['PokedexDB']
 
 # Crear colecciones
-userCollection          = pokedex['Users']
-pokemonCollection       = pokedex['Pokemons']
-caughtPokemonCollection = pokedex['CaughtPokemons']
+userCollection             = pokedex['Users']
+pokemonCollection          = pokedex['Pokemons']
+pokemonEncounterCollection = pokedex['PokemonEncounters']

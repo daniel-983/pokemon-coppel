@@ -17,13 +17,12 @@ redis_port = os.getenv("REDIS_PORT")
 jwt_secret = os.getenv('JWT_SECRET_KEY')
 secret     = os.getenv('SECRET_KEY')
 
-cache = Redis(host=redis_host, port=redis_port, db=0)
-
 app.config["JWT_ALGORITHM"] = "HS256"
 app.config["JWT_SECRET_KEY"] = jwt_secret
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=2)
 app.config["SECRET_KEY"] = secret
 
+redis_client = Redis(host=redis_host, port=redis_port, db=0)
 jwt  = JWTManager(app)
 csrf = CSRFProtect(app)
 csrf.init_app(app)
