@@ -11,14 +11,14 @@ pokemonController = PokemonController()
 @pokemons_bp.route('/pokemon/<int:id>', methods=['GET'])
 @csrf.exempt
 @jwt_required()
-@swag_from('docs\\api\\pokemon.yaml')
+@swag_from('docs/api/pokemon.yaml')
 def get_pokemon_by_id(id):
     pokemon_id = request.args.get('id')
     return pokemonController.by_id(pokemon_type)
 
 @pokemons_bp.route('/pokemon', methods=['GET'])
 @csrf.exempt
-@swag_from('docs\\api\\pokemon_by_type.yaml')
+@swag_from('docs/api/pokemon_by_type.yaml')
 def get_pokemons_by_type():
     # user_id = get_jwt_identity()
     pokemon_type = request.args.get('type')

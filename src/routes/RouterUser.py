@@ -12,7 +12,7 @@ pokemonController = PokemonController()
 
 @users_bp.route('/register', methods=['POST'])
 @csrf.exempt
-@swag_from('docs\\api\\register.yaml')
+@swag_from('docs/api/register.yaml')
 def register():
     try:
         user_data = request.get_json()
@@ -28,7 +28,7 @@ def register():
 
 @users_bp.route('/login', methods=['POST'])
 @csrf.exempt
-@swag_from('docs\\api\\login.yaml')
+@swag_from('docs/api/login.yaml')
 def login():
     try:
         user_data = request.get_json()
@@ -46,7 +46,7 @@ def login():
 
 @users_bp.route('/profile', methods=['GET'])
 @jwt_required()
-@swag_from('docs\\api\\profile.yaml')
+@swag_from('docs/api/profile.yaml')
 def profile():
     return userController.profile()
 
@@ -54,7 +54,7 @@ def profile():
 @users_bp.route('/search', methods=['POST'])
 @csrf.exempt
 @jwt_required()
-@swag_from('docs\\api\\search.yaml')
+@swag_from('docs/api/search.yaml')
 def search():
     pokemon_data = request.get_json()
     pokemon_data['name'] = pokemon_data['pokemon_name']
@@ -65,7 +65,7 @@ def search():
 @users_bp.route('/catch', methods=['POST'])
 @csrf.exempt
 @jwt_required()
-@swag_from('docs\\api\\catch.yaml')
+@swag_from('docs/api/catch.yaml')
 def catch():
     pokemon_data = request.get_json()
     resp = pokemonController.catch(pokemon_data)
