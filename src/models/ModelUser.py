@@ -43,7 +43,6 @@ class UserRepository:
             # log.set_log().debug(e)
             return Response(json.dumps({"id": "EX-0041", "message": "Verify data usr"}), mimetype='application/json'), 404
 
-
     def delete_user(self, user_id: str):
         try:
             result = self.collection.delete_one({"_id": user_id})
@@ -75,13 +74,13 @@ class UserRepository:
         except Exception as e:
             return Response(json.dumps({"id": "EX-0035", "message": "Verify data usr"}), mimetype='application/json'), 404
 
-    def get_user_by_data(self, user: UserModel):
+    def get_user_by_id(self, user_id):
         try:
-            user = self.collection.find_one({"_id": user.id})
+            user = self.collection.find_one({"_id": user_id})
             if user:
                 return user
             else:
-                return Response(json.dumps({"message": "User not found"}), 404)
+                None
         except (errors.ConnectionFailure, errors.PyMongoError) as e:
             # log.set_log().debug(e)
             return Response(json.dumps({"id": "EX-0036", "message": "Connection error usr"}), mimetype='application/json'), 404

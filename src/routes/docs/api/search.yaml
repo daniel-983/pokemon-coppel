@@ -1,5 +1,5 @@
 tags:
-  - Users
+  - Pokemon
 parameters:
   - in: header
     name: Authorization

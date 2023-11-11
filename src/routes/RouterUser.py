@@ -43,4 +43,4 @@ def login():
 @jwt_required()
 @swag_from('docs\\api\\profile.yaml')
 def profile():
-    return UserController.get_user_profile()
+    return UserController.profile()

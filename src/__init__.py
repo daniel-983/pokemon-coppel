@@ -4,6 +4,7 @@ from flask_wtf.csrf     import CSRFProtect
 from flasgger           import Swagger
 from redis              import Redis, exceptions
 from dotenv             import load_dotenv
+from datetime           import timedelta
 import os
 
 load_dotenv()
@@ -20,15 +21,35 @@ cache = Redis(host=redis_host, port=redis_port, db=0)
 
 app.config["JWT_ALGORITHM"] = "HS256"
 app.config["JWT_SECRET_KEY"] = jwt_secret
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=2)
 app.config["SECRET_KEY"] = secret
 
 jwt  = JWTManager(app)
 csrf = CSRFProtect(app)
 csrf.init_app(app)
-Swagger(app)
+
+template = {
+	"securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+        }
+    },
+    "security": [
+        {
+            "Bearer": []
+        }
+    ]
+}
+
+# Swagger(app, config=swagger_config, template=template)
+Swagger(app, template=template)
 
 from src.routes.RouterUser    import users_bp
 # from src.routes.RouterPokemon import pokemons_bp
 
 app.register_blueprint(users_bp, url_prefix='/api')
+# app.register_blueprint(pokemons_bp, url_prefix='/api')
 
